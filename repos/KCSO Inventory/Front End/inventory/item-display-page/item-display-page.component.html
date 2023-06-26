@@ -1,0 +1,97 @@
+<mat-spinner class="mt-3" *ngIf="item === null"></mat-spinner>
+
+<div class="col center">
+  <div *ngIf="item === undefined">
+    <h1>The requested item does not exist in the database.</h1>
+  </div>
+</div>
+
+<div *ngIf="item">
+  <div class="row">
+    <div class="col data center">
+      <h2>
+        <strong>{{item.item}}</strong>
+      </h2>
+    </div>
+  </div>
+  <!-- END row -->
+  <div class="row" *ngFor="let colGroup of itemProperties">
+    <div class="col" *ngFor="let col of colGroup">
+      <mat-list>
+        <div *ngFor="let row of col">
+          <div
+            *ngIf="(row !== 'checkoutDate' && row !== 'assignedToType') || item[row]">
+            <div class="row">
+              <div class="col center">
+                <strong>{{ row | dataTable | headerName }}</strong>
+                <strong
+                  *ngIf="row === 'assignedToType'">{{item.assignedToType}}:</strong>
+              </div>
+            </div>
+            <mat-divider></mat-divider>
+            <div class="row">
+              <div class="col data center">
+                <div [ngSwitch]="item[row]">
+                  <div *ngSwitchCase="true">
+                    <mat-icon class="primary">done</mat-icon>
+                  </div>
+                  <div *ngSwitchCase="false">
+                    <mat-icon class="warn">clear</mat-icon>
+                  </div>
+                  <div *ngSwitchDefault>
+                    {{ item | dataTable:row }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </mat-list>
+    </div>
+    <!-- END col -->
+  </div>
+  <!-- END row (colGroups) -->
+
+  <mat-spinner class="mt-3" *ngIf="!itemHistory"></mat-spinner>
+
+  <div *ngIf="itemHistory">
+    <div>
+      <div>
+        <h2 style="padding-top: 50px;" class="center">
+          <strong>Modify History</strong>
+        </h2>
+      </div>
+    </div>
+
+    <div *ngIf="table_page.length > 0" class="inventory_container mat-elevation-z2">
+        <table mat-table [dataSource]="table_page">
+          <ng-container *ngFor="let column of history_table_columns; index as i" [matColumnDef]="column"
+          [sticky]="column === history_table_columns[0] ? 'sticky' : null">
+          <th [ngClass]="{'first' : i === 0, 'second' : i === 1, 'center': true}" mat-header-cell *matHeaderCellDef> {{ column | dataTable }} </th>
+            <td [ngClass]="{'first' : i === 0, 'second' : i === 1}" (click)="column === history_table_columns[history_table_columns.length - 1]"
+              mat-cell *matCellDef="let item; let idx = index">
+                <div [ngSwitch]="item[column]" [ngClass]="{'red': !compare(idx + (page_index * page_size), column) && i > 1, 'center': true}">
+                  <div *ngSwitchCase="true" class="icon">
+                    <mat-icon class="primary">done</mat-icon>
+                  </div>
+                  <div *ngSwitchCase="false" class="icon">
+                    <mat-icon class="warn">clear</mat-icon>
+                  </div>
+                  <div *ngSwitchDefault>
+                    {{ item | dataTable:column }}
+                  </div>
+                </div>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="history_table_columns"></tr>
+          <tr mat-row *matRowDef="let row; columns: history_table_columns">{{index}}</tr>
+        </table>
+     </div>
+     <div *ngIf="table_page">
+       <mat-paginator [length]="itemHistory.length" [pageIndex]="page_index"
+         [pageSizeOptions]="[5, 10, 25, 100]" showFirstLastButtons (page)="page($event.pageSize, $event.pageIndex)"></mat-paginator>
+     </div>
+  </div>
+
+</div>

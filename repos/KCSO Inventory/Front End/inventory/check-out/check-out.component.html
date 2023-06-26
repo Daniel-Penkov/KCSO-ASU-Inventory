@@ -1,0 +1,107 @@
+<form #checkOutForm="ngForm" (ngSubmit)="checkOut($event)">
+  <h1 mat-dialog-title>Check Out</h1>
+
+  <div mat-dialog-content>
+    <h2 *ngIf="!self"><strong>Assigned To</strong></h2>
+    <mat-radio-group *ngIf="!self" name="assignedToType"
+      [(ngModel)]="item.assignedToType" #assignedToType="ngModel" required
+      (input)="item.assignedTo = null">
+      <div class="row">
+        <div class="col-3">
+          <mat-radio-button value="Aircraft">
+            Aircraft
+          </mat-radio-button>
+        </div>
+        <div class="col-3">
+          <mat-radio-button value="Person">
+            Person
+          </mat-radio-button>
+        </div>
+        <div class="col-3">
+          <mat-radio-button value="Agency">
+            Agency
+          </mat-radio-button>
+        </div>
+        <div class="col-3">
+          <mat-radio-button value="Location">
+            Location
+          </mat-radio-button>
+        </div>
+      </div>
+    </mat-radio-group>
+
+    <div class="row"
+      *ngIf="!self && !!item.assignedToType && item.assignedToType !== 'Location'">
+      <div class="col">
+        <mat-form-field appearance="standard">
+          <mat-label>{{ item.assignedToType | dataTable }}</mat-label>
+          <input type="text" matInput [matAutocomplete]="assignedToAuto"
+            name="assignedTo" [(ngModel)]="item.assignedTo"
+            #assignedToInput="ngModel" required [appHasKey]="key()"
+            (focus)="openPanel(assignedToInput)"
+            (input)="openPanel(assignedToInput)" />
+
+          <mat-autocomplete #assignedToAuto="matAutocomplete"
+            autoActiveFirstOption [displayWith]="display">
+            <mat-option *ngFor="let option of filteredOptions | async"
+              [value]="option">
+              <span>{{ display(option) }}</span>
+            </mat-option>
+          </mat-autocomplete>
+
+          <mat-error *ngIf="assignedToInput.errors?.hasKey === false">
+            You must select {{ item.assignedToType === 'Person' ? 'a' : 'an' }}
+            {{ item.assignedToType | dataTable }} from the list
+          </mat-error>
+          <mat-error *ngIf="assignedToInput.errors?.required">
+            {{ item.assignedToType | dataTable }} is required
+          </mat-error>
+        </mat-form-field>
+      </div>
+    </div>
+    <!-- END row -->
+
+    <div class="row"
+      *ngIf="!self && !!item.assignedToType && item.assignedToType === 'Location'">
+      <div class="col">
+        <mat-form-field appearance="standard">
+          <mat-label>{{ item.assignedToType | dataTable }}</mat-label>
+          <input type="text" matInput name="assignedTo"
+            [(ngModel)]="item.Location" #assignedToInput="ngModel" required>
+
+          <mat-error *ngIf="assignedToInput.errors?.required">
+            {{ item.assignedToType | dataTable }} is required
+          </mat-error>
+        </mat-form-field>
+      </div>
+    </div>
+    <!-- END row -->
+
+    <div class="row" *ngIf="self || !!item.assignedToType">
+      <div class="col">
+        <mat-form-field appearance="standard">
+          <mat-label>Checkout Date</mat-label>
+          <input type="text" matInput [matDatepicker]="checkoutDate"
+            name="checkoutDate" [(ngModel)]="item.checkoutDate" required />
+          <mat-datepicker-toggle matSuffix [for]="checkoutDate">
+          </mat-datepicker-toggle>
+          <mat-datepicker touchUi="true" #checkoutDate></mat-datepicker>
+          <mat-error>Checkout date is required</mat-error>
+        </mat-form-field>
+      </div>
+    </div>
+    <!-- END row -->
+  </div>
+
+  <mat-dialog-actions>
+    <div class="spacer"></div>
+
+    <button mat-mini-fab color="primary" class="m-3"
+      [disabled]="(self && !item.checkoutDate) || (!self && checkOutForm.invalid)"
+      (click)="checkOut($event)">
+      <mat-icon>done</mat-icon>
+    </button>
+
+    <div class="spacer"></div>
+  </mat-dialog-actions>
+</form>

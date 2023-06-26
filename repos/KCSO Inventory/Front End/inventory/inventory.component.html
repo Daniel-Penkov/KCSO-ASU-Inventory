@@ -1,0 +1,90 @@
+<app-header-row class="mb-0" header="Inventory"
+  [canEdit]="authService.canEdit('inventory')"
+  (addClicked)="add_edit_item(null)">
+</app-header-row>
+
+<mat-form-field appearance="standard">
+  <mat-label>Inventory Search</mat-label>
+  <input (input)="page(pageSize, pageIndex)" matInput
+    [(ngModel)]="searchString">
+  <button matSuffix mat-icon-button aria-label="Search">
+    <mat-icon>search</mat-icon>
+  </button>
+</mat-form-field>
+
+<mat-spinner class="mt-3" *ngIf="!resources_full"></mat-spinner>
+
+<div *ngIf="resources_full" class="inventory_container mat-elevation-z2">
+  <table mat-table matSort [matSortActive]="sortColumn"
+    [matSortDirection]="sortDirection" (matSortChange)="sortChange($event)"
+    [dataSource]="resources_page" class="d-none d-sm-table">
+    <ng-container *ngFor="let column of tableColumns; index as i"
+      [matColumnDef]="column"
+      [sticky]="column === tableColumns[0] ? 'sticky' : null"
+      [stickyEnd]="column === 'viewHistory' || column === 'assignedToType' ? 'stickyEnd' : null">
+      <th mat-header-cell mat-sort-header *matHeaderCellDef>
+        {{ column | dataTable }}
+      </th>
+      <!-- For normal rows: Pipe item through dataTable pipe with column as the
+          argument -->
+      <td (click)="clickBehavior(i, item)" mat-cell *matCellDef="let item"
+        [class.check_out]="!item.checkoutDate && authService.canCheckoutToSelf()"
+        [class.check_in]="!!item.checkoutDate && (checkInToSelfCheck(item) || authService.canCheckinToAll())"
+        [class.clickableRow]="column === 'assignedToType' && 
+        (!item.checkoutDate && authService.canCheckoutToSelf()) || 
+        (!!item.checkoutDate && checkInToSelfCheck(item))">
+        <div *ngIf="item[column] === true" class="primary">
+          <mat-icon>done</mat-icon>
+        </div>
+        <div *ngIf="item[column] === false" class="warn">
+          <mat-icon>clear</mat-icon>
+        </div>
+        <div *ngIf="item[column] !== true && item[column] !== false">
+          <span [attr.data]="item | dataTable:column"></span>
+        </div>
+      </td>
+    </ng-container>
+    <tr mat-header-row *matHeaderRowDef="tableColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: tableColumns;"
+      [class.clickableRow]="authService.canEdit('inventory')"></tr>
+  </table>
+
+  <!-- On small screens, don't display stickyEnd columns -->
+  <table mat-table matSort [matSortActive]="sortColumn"
+    [matSortDirection]="sortDirection" (matSortChange)="sortChange($event)"
+    [dataSource]="resources_page" class="d-table d-sm-none">
+    <ng-container *ngFor="let column of tableColumns; index as i"
+      [matColumnDef]="column"
+      [sticky]="column === tableColumns[0] ? 'sticky' : null">
+      <th mat-header-cell mat-sort-header *matHeaderCellDef>
+        {{ column | dataTable }}
+      </th>
+      <!-- For normal rows: Pipe item through dataTable pipe with column as the
+            argument -->
+      <td (click)="clickBehavior(i, item)" mat-cell *matCellDef="let item"
+        [class.check_out]="!item.checkoutDate && authService.canCheckoutToSelf()"
+        [class.check_in]="!!item.checkoutDate && (checkInToSelfCheck(item) || authService.canCheckinToAll())"
+        [class.clickableRow]="column === 'assignedToType' && 
+        (!item.checkoutDate && authService.canCheckoutToSelf()) || 
+        (!!item.checkoutDate && checkInToSelfCheck(item))">
+        <div *ngIf="item[column] === true" class="primary">
+          <mat-icon>done</mat-icon>
+        </div>
+        <div *ngIf="(item[column] === false)" class="warn">
+          <mat-icon>clear</mat-icon>
+        </div>
+        <div *ngIf="item[column] !== true && item[column] !== false">
+          <span [attr.data]="item | dataTable:column"></span>
+        </div>
+      </td>
+    </ng-container>
+    <tr mat-header-row *matHeaderRowDef="tableColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: tableColumns;"
+      [class.clickableRow]="authService.canEdit('inventory')"></tr>
+  </table>
+</div>
+<div *ngIf="resources_full">
+  <mat-paginator [length]="inventory_length" [pageIndex]="pageIndex"
+    [pageSizeOptions]="[5, 10, 25, 100]" showFirstLastButtons
+    (page)="page($event.pageSize, $event.pageIndex)"></mat-paginator>
+</div>

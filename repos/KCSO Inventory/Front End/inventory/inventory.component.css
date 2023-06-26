@@ -1,0 +1,71 @@
+.clickableRow {
+  cursor: pointer;
+}
+
+span:after {
+  content: attr(data);
+}
+
+tr[mat-row]:hover {
+  background: #f5f5f5;
+}
+
+.inventory_container {
+  width: 100%;
+  overflow: auto;
+}
+
+.inventory_container table {
+  min-width: 2500px;
+}
+
+th.mat-column-item, td.mat-column-item {
+  border-right: 1px solid #e0e0e0;
+  width: 130px;
+}
+
+th.mat-column-category, td.mat-column-category {
+  padding-left: 8px;
+}
+
+th.mat-column-assignedToType, td.mat-column-assignedToType {
+  border-left: 1px solid #e0e0e0;
+  padding-left: 8px;
+  width: 130px;
+}
+
+/*
+ The viewHistory column needed a set width in order to have the stickyEnd
+ attribute applied to it. The important thing to note here is that if there
+ are mutiple columns that need stickEnd behavior, every column except the
+ left-most sticky column needs to have a manually set width.
+ */
+th.mat-column-viewHistory, td.mat-column-viewHistory {
+  padding-left: 8px;
+  width: 130px;
+}
+td.mat-column-viewHistory:hover {
+  background: #1b5e20;
+}
+td.mat-column-viewHistory:hover::after {
+  color: #fff;
+  content: 'View History';
+}
+
+td.mat-column-assignedToType.check_in:hover,
+td.mat-column-assignedToType.check_out:hover {
+  background: #1b5e20;
+  color: #fff;
+}
+td.mat-column-assignedToType.check_in:hover span:after {
+  content: 'Check In';
+}
+td.mat-column-assignedToType.check_out:hover span:after {
+  content: 'Check Out';
+}
+
+#button-size {
+  height: 24px;
+  width: 24px;
+  font-size: 24px;
+}
